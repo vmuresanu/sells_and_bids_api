@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from '../../role/entity/role.entity';
 
 @Entity('permission')
@@ -9,7 +9,6 @@ export class Permission extends BaseEntity {
   @Column('varchar', { length: 18 })
   name: string;
 
-  @ManyToOne(type => Role, role => role.permissions)
-  @JoinColumn({ name: 'role_id', referencedColumnName: 'id' })
-  role: Role;
+  @ManyToMany(type => Role, role => role.permissions)
+  roles: Role[];
 }

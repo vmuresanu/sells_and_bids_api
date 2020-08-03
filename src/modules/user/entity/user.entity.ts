@@ -27,7 +27,15 @@ export class User extends BaseEntity {
   password: string;
 
   @ManyToMany(type => Role, role => role.users)
-  @JoinTable({ name: 'user_roles' })
+  @JoinTable({
+    name: 'user_role',
+    joinColumns: [
+      { name: 'user_id' }
+    ],
+    inverseJoinColumns: [
+      { name: 'role_id' }
+    ]
+  })
   roles: Role[];
 
   @BeforeInsert()
