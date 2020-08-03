@@ -5,11 +5,12 @@ export class HttpErrorFilter implements ExceptionFilter {
 
   catch(exception: any, host: ArgumentsHost): any {
     let errorResponse;
+    let status;
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
     const response = ctx.getResponse();
     if (exception instanceof HttpException) {
-      const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
+      status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR;
       let badRequestMessage;
       if (status === HttpStatus.BAD_REQUEST) {
         badRequestMessage = exception.getResponse()
@@ -33,6 +34,6 @@ export class HttpErrorFilter implements ExceptionFilter {
       JSON.stringify(errorResponse),
       'ExceptionFilter');
 
-    response.status(404).json(errorResponse);
+    response.status(status).json(errorResponse);
   }
 }
