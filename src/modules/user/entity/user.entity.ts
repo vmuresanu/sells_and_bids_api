@@ -1,5 +1,15 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
+import {
+  BaseEntity,
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity, JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
+import { hash } from 'bcryptjs';
+import { Role } from '../../role/entity/role.entity';
 
 @Entity('user')
 @Unique(['username'])
@@ -13,13 +23,15 @@ export class User extends BaseEntity {
   @Column('varchar', { length: 18 })
   username: string;
 
-  @Column({
-    type: 'text',
-  })
+  @Column({ type: 'text' })
   password: string;
+
+  @ManyToMany(type => Role, role => role.users)
+  @JoinTable({ name: 'user_roles' })
+  roles: Role[];
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = await hash(this.password, 10);
   }
 }
