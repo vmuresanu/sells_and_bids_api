@@ -1,0 +1,10 @@
+export const PERMISSIONS = {
+  FEED_PAGE_EDIT: 'ADD_EDIT_FEED_PAGE',
+  FEED_PAGE_VIEW: 'VIEW_FEED_PAGE',
+};
+
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  BUYER: 'BUYER',
+  SELLER: 'SELLER',
+};

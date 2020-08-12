@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../../modules/user/user.service';
 import { UserRequest } from '../../modules/user/entity/user.request';
-import { comparePassword, getToken } from '../../helpers/helpers';
+import { comparePassword, generateToken, mapRolesAndPermissions } from '../../helpers/helpers';
 import { UserResponse } from '../../modules/user/entity/user.response';
-import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -24,14 +23,21 @@ export class AuthService {
 
   async login(userDto: UserRequest) {
     const { username, password } = userDto;
-    const user = await this.userService.getUserByUsername(username);
-    if (!user || !(await comparePassword(password, user.password))) {
+    const userEntity = await this.userService.getUserByUsername(username);
+    const userWithRolesAndPermissions = await this.userService.getUserByUsernameWithRolesAndPermissions(username);
+    if (!userEntity || !(await comparePassword(password, userEntity.password))) {
       throw new HttpException(
         'Invalid username/password',
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      const token = getToken(user.id, user.username);
+      const mappedUserWithRolesAndPermissions = mapRolesAndPermissions(userWithRolesAndPermissions);
+      const token = generateToken(
+        userEntity.id,
+        userEntity.username,
+        mappedUserWithRolesAndPermissions.roles,
+        mappedUserWithRolesAndPermissions.permissions
+      );
       return { token };
     }
   }

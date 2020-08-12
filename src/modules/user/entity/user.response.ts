@@ -1,6 +1,5 @@
 import { Exclude, Type } from 'class-transformer';
-import { PermissionResponse } from '../../permission/entity/permission.response';
-import { Role } from '../../role/entity/role.entity';
+import { RoleResponse } from '../../role/entity/role.response';
 
 export class UserResponse {
     @Exclude()
@@ -11,12 +10,8 @@ export class UserResponse {
     @Exclude()
     password: string;
 
-
-    @Exclude()
-    roles: Role[];
+    @Type(() => RoleResponse)
+    roles: RoleResponse[];
 
     createDate: Date;
-
-    @Type(() => PermissionResponse)
-    permissions: string[];
 }

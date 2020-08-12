@@ -6,7 +6,9 @@ import { UserRepository } from './user.repository';
 import { RoleRepository } from '../role/role.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRepository, RoleRepository])],
+  imports: [
+    TypeOrmModule.forFeature([UserRepository, RoleRepository]),
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService]
