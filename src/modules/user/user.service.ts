@@ -27,6 +27,26 @@ export class UserService {
     return await this.userRepository.findOne({ where: { username } });
   }
 
+  async getUserByUsernameWithRolesAndPermissions(username: string): Promise<UserResponse> {
+      /*return this.userRepository.createQueryBuilder('u')
+        .select(['u.username', 'r.name'])
+        .innerJoin('user_role', 'ur', 'u.id = ur.user_id')
+        .innerJoin('role', 'r', 'ur.role_id = r.id')
+        .where('u.username = :username', {username})
+        .getMany()
+        .then((permissions: any) => permissions.map(p => {
+          console.log(p)
+          return p.name
+        }));*/
+
+      return this.userRepository
+        .findOne({
+          relations: ['roles', 'roles.permissions'],
+          where: {username}
+        })
+        .then(user => plainToClass(UserResponse, user));
+  }
+
   createUser(userDto: UserRequest): User {
     return this.userRepository.create(userDto);
   }

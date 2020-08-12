@@ -10,8 +10,8 @@ export class PermissionService {
     private permissionRepository: PermissionRepository) {
   }
 
-  async getPermissionsByUsername(username: string): Promise<string[]> {
-    return this.permissionRepository.createQueryBuilder()
+  async getPermissionsByUsername(username: string): Promise<any> {
+    /*return this.permissionRepository.createQueryBuilder()
       .select('permission.name')
       .innerJoin('role_permission', 'rp', 'permission.id = rp.permission_id')
       .innerJoin('role', 'r', 'rp.role_id = r.id')
@@ -19,6 +19,6 @@ export class PermissionService {
       .innerJoin('user', 'u', 'u.id = ur.user_id')
       .where('u.username = :username', {username})
       .getRawMany()
-      .then((permissions: Permission[]) => permissions.map(p => p.name));
-  }l
+      .then((permissions: Permission[]) => permissions.map(p => p.name));*/
+  }
 }
