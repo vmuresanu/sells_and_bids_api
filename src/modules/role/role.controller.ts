@@ -7,7 +7,12 @@ export class RoleController {
   }
 
   @Get()
-  getPermissionsByUsername(@Query('username') username: string) {
+  getRoles() {
+    return this.roleService.getRoles();
+  }
+
+  @Get()
+  getRolesByUsername(@Query('username') username: string) {
     return this.roleService.getRolesByUsername(username);
   }
 }
