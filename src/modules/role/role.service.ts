@@ -10,6 +10,12 @@ export class RoleService {
     private roleRepository: RoleRepository) {
   }
 
+  async getRoles(): Promise<string[]> {
+    return await this.roleRepository
+      .find()
+      .then(roles => roles.map(r => r.name));
+  }
+
   async getRolesByUsername(username: string): Promise<Role[]> {
     return this.roleRepository.find({relations: ['permissions']});
    /* return this.roleRepository.createQueryBuilder()
