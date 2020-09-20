@@ -1,5 +1,4 @@
 import { IsNotEmpty } from 'class-validator';
-import { RoleRequest } from '../../role/entity/role.request';
 
 export class UserRequest {
   @IsNotEmpty()
@@ -7,6 +6,4 @@ export class UserRequest {
 
   @IsNotEmpty()
   password: string;
-
-  roles: RoleRequest[];
 }

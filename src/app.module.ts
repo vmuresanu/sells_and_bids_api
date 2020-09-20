@@ -8,7 +8,7 @@ import { HttpErrorFilter } from './infrastructure/interceptors/http-error.filter
 import { LoggingInterceptor } from './infrastructure/interceptors/logging.interceptor';
 import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
-import { HasRolePermissionGuard } from './infrastructure/guards/has-role-permission-guard.service';
+import { HasRolePermissionGuard } from './infrastructure/guards/has-role-permission.guard';
 
 @Module({
   imports: [

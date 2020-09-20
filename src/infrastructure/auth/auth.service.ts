@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../../modules/user/user.service';
-import { UserRequest } from '../../modules/user/entity/user.request';
 import { comparePassword, generateToken, mapRolesAndPermissions } from '../../helpers/helpers';
-import { UserResponse } from '../../modules/user/entity/user.response';
+import { UserRequest } from '../../modules/user/entity/user.request';
 
 @Injectable()
 export class AuthService {
@@ -40,15 +39,5 @@ export class AuthService {
       );
       return { token };
     }
-  }
-
-  async register(userDto: UserRequest): Promise<UserResponse> {
-    const { username } = userDto;
-    let user = await this.userService.getUserByUsername(username);
-    if (user) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
-    }
-
-    return await this.userService.saveUser(userDto);
   }
 }

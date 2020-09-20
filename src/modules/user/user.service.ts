@@ -2,10 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { User } from './entity/user.entity';
-import { UserRequest } from './entity/user.request';
+import { UserUpdateRequest } from './entity/user-update.request';
 import { UserResponse } from './entity/user.response';
 import { plainToClass } from 'class-transformer';
 import { Role } from '../role/entity/role.entity';
+import { ROLES } from '../../shared/constants/roles-and-permissions';
+import { UserRequest } from './entity/user.request';
 
 @Injectable()
 export class UserService {
@@ -14,12 +16,12 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-    ) {
+  ) {
   }
 
   async getAll(): Promise<UserResponse[]> {
     return await this.userRepository
-      .find({relations: ['roles']})
+      .find({ relations: ['roles'] })
       .then(user => plainToClass(UserResponse, user));
   }
 
@@ -28,41 +30,52 @@ export class UserService {
   }
 
   async getUserByUsernameWithRolesAndPermissions(username: string): Promise<UserResponse> {
-      /*return this.userRepository.createQueryBuilder('u')
-        .select(['u.username', 'r.name'])
-        .innerJoin('user_role', 'ur', 'u.id = ur.user_id')
-        .innerJoin('role', 'r', 'ur.role_id = r.id')
-        .where('u.username = :username', {username})
-        .getMany()
-        .then((permissions: any) => permissions.map(p => {
-          console.log(p)
-          return p.name
-        }));*/
-
-      return this.userRepository
-        .findOne({
-          relations: ['roles', 'roles.permissions'],
-          where: {username}
-        })
-        .then(user => plainToClass(UserResponse, user));
+    return this.userRepository
+      .findOne({
+        relations: ['roles', 'roles.permissions'],
+        where: { username },
+      })
+      .then(user => plainToClass(UserResponse, user));
   }
 
-  createUser(userDto: UserRequest): User {
-    return this.userRepository.create(userDto);
-  }
-
-  async saveUser(userRequest: UserRequest): Promise<UserResponse> {
-    let user = await this.userRepository.findOne({ where: { username: userRequest.username } });
+  async createUser(userRequest: UserRequest): Promise<UserResponse> {
+    let user = await this.userRepository.findOne({
+      where: { username: userRequest.username },
+      relations: ['roles'],
+    });
 
     if (user) {
       throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST);
     }
-    
-    const userRoles = await this.roleRepository.find({where: {name: In(userRequest.roles)}});
+
+    const userRoles = await this.roleRepository.find({ where: { name: ROLES.USER } });
     user = this.userRepository.create(userRequest);
     user.roles = userRoles;
+
     return this.userRepository
       .save(user)
+      .then((u: User) => {
+        return plainToClass(UserResponse, u);
+      });
+  }
+
+  async updateUser(userId: string, userRequest: UserUpdateRequest): Promise<UserResponse> {
+    let user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      throw new HttpException('User doesn\'t exist', HttpStatus.BAD_REQUEST);
+    }
+
+    if (userRequest.roles) {
+      const newRoles = await this.roleRepository.find({ where: { name: In(userRequest.roles) } });
+      user.roles = [...newRoles];
+    }
+
+    return this.userRepository
+      .save({...userRequest, ...user})
       .then((u: User) => {
         return plainToClass(UserResponse, u);
       });

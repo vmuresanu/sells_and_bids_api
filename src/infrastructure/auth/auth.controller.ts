@@ -12,10 +12,4 @@ export class AuthController {
   async login(@Body() userRequest: UserRequest) {
     return this.authService.login(userRequest);
   }
-
-  @Post('register')
-  @UsePipes(ValidationPipe)
-  register(@Body() userRequest: UserRequest) {
-    return this.authService.register(userRequest);
-  }
 }

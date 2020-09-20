@@ -15,11 +15,11 @@ export class ValidationPipe implements PipeTransform {
       return value;
     }
     const object = plainToClass(metatype, value);
-    const errors = await validate(object);
+    const errors = await validate(object, { whitelist: true });
     if (errors.length > 0) {
       throw new HttpException({text: 'Validation failed', count: errors.length, errors: this.formatErrors(errors)}, HttpStatus.BAD_REQUEST);
     }
-    return value;
+    return object;
   }
 
   private toValidate(metatype: any): boolean {
