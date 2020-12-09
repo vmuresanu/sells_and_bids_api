@@ -22,9 +22,12 @@ export class HasRolePermissionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const username = request.params.username;
-    const token = request.headers.authorization.split(' ')[1];
-    const decodedToken = this.jwtService.decode(token);
+    const token = request.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(token);
+
+    if (!decodedToken) {
+      return false;
+    }
 
     if (roles) {
       return !!roles.find(r => decodedToken['roles'].includes(r));
