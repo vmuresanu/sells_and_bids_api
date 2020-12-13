@@ -9,6 +9,7 @@ import { LoggingInterceptor } from './infrastructure/interceptors/logging.interc
 import { RoleModule } from './modules/role/role.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { HasRolePermissionGuard } from './infrastructure/guards/has-role-permission.guard';
+import { AuctionModule } from './modules/auction/auction.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { HasRolePermissionGuard } from './infrastructure/guards/has-role-permiss
     UserModule,
     RoleModule,
     PermissionModule,
+    AuctionModule,
   ],
   providers: [
     {

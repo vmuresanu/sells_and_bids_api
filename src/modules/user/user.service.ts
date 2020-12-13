@@ -8,6 +8,7 @@ import { plainToClass } from 'class-transformer';
 import { Role } from '../role/entity/role.entity';
 import { ROLES } from '../../shared/constants/roles-and-permissions';
 import { UserRequest } from './entity/user.request';
+import { UserNotFoundException } from '../../shared/exceptions/user/user.exceptions';
 
 @Injectable()
 export class UserService {
@@ -26,7 +27,11 @@ export class UserService {
   }
 
   async getUserByUsername(username: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+    return user;
   }
 
   async getUserByUsernameWithRolesAndPermissions(username: string): Promise<UserResponse> {
