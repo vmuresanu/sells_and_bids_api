@@ -1,8 +1,18 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { Enum } from '../../../shared/decorators/enum.decorator';
 import { MileageTypeEnum } from './mileage-type.enum';
 import { VehicleStateEnum } from './vehicle-state.enum';
 import { User } from '../../user/entity/user.entity';
+import { Image } from '../../image/entity/image.entity';
 
 @Entity('auction')
 export class Auction extends BaseEntity {
@@ -36,5 +46,8 @@ export class Auction extends BaseEntity {
 
   @ManyToOne(type => User)
   user: User;
+
+  @OneToMany(type => Image, image => image.auction)
+  images: Image[];
 
 }

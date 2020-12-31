@@ -24,7 +24,8 @@ const imageFilter = function (req, file, cb) {
     }),
   ],
   providers: [ImageService],
-  controllers: [ImageController]
+  controllers: [ImageController],
+  exports: [ImageService],
 })
 export class ImageModule {
 }
