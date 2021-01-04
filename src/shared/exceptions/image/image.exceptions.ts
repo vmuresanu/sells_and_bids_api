@@ -5,3 +5,9 @@ export class ImageNotFoundException extends HttpException {
     super('Selected Image has not been found', HttpStatus.NOT_FOUND);
   }
 }
+
+export class ImagesNotFoundException extends HttpException {
+  constructor() {
+    super('Error has occurred when uploading images please retry.', HttpStatus.NOT_FOUND);
+  }
+}

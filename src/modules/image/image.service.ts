@@ -1,14 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ImageRepository } from './image.repository';
 import { plainToClass } from 'class-transformer';
 import { ImageRequest } from './entity/image.request';
 import { Image } from './entity/image.entity';
 import { ImageResponse } from './entity/image.response';
 import { FilesNotSelectedException } from '../../shared/exceptions/file/file.exceptions';
-import { ImageNotFoundException } from '../../shared/exceptions/image/image.exceptions';
+import { ImageNotFoundException, ImagesNotFoundException } from '../../shared/exceptions/image/image.exceptions';
 import { GROUPS } from '../../shared/constants/class-transformer';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
 import { In } from 'typeorm';
 
 @Injectable()
@@ -16,8 +14,7 @@ export class ImageService {
 
   constructor(
     private imageRepository: ImageRepository,
-    @Inject(REQUEST) private request: Request,
-    ) {
+  ) {
   }
 
   async create(files: Express.Multer.File[], imageRequest: ImageRequest): Promise<ImageResponse[]> {
@@ -41,9 +38,11 @@ export class ImageService {
   }
 
   async findAll(): Promise<ImageResponse[]> {
-    const images = await this.imageRepository.find();
-    const mappedImages = await Promise.all(images.map(image => ({...image, url: `http://${this.request.get('host')}/image/${image.id}`})));
-    return plainToClass(ImageResponse, mappedImages);
+    return this.imageRepository
+      .find()
+      .then((images: Image[]) => {
+        return plainToClass(ImageResponse, images)
+      });
   }
 
   async findById(id: string): Promise<ImageResponse> {
@@ -54,8 +53,19 @@ export class ImageService {
       });
   }
 
+  async findOrphans(): Promise<Image[]> {
+    return this.imageRepository.find({ where: { auction: null } });
+  }
+
   async findByIds(ids: string[]): Promise<Image[]> {
-    return this.imageRepository.find({ where: { id: In(ids) } })
+    if (!ids?.length) {
+      return [];
+    }
+    const images = await this.imageRepository.find({ where: { id: In(ids) } });
+    if (!images.length) {
+      throw new ImagesNotFoundException();
+    }
+    return images;
   }
 
   async deleteById(id: string): Promise<void> {
@@ -65,4 +75,13 @@ export class ImageService {
     }
     await this.imageRepository.delete({ id });
   }
+
+  async deleteByIds(ids: string[]): Promise<void> {
+    const images: Image[] = await this.findByIds(ids);
+    if (!images.length) {
+      throw new ImagesNotFoundException();
+    }
+    await this.imageRepository.remove(images);
+  }
+
 }
