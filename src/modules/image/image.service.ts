@@ -9,6 +9,7 @@ import { ImageNotFoundException } from '../../shared/exceptions/image/image.exce
 import { GROUPS } from '../../shared/constants/class-transformer';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { In } from 'typeorm';
 
 @Injectable()
 export class ImageService {
@@ -51,6 +52,10 @@ export class ImageService {
       .then((image: Image) => {
         return plainToClass(ImageResponse, image, { groups: [GROUPS.GET_ONE] });
       });
+  }
+
+  async findByIds(ids: string[]): Promise<Image[]> {
+    return this.imageRepository.find({ where: { id: In(ids) } })
   }
 
   async deleteById(id: string): Promise<void> {

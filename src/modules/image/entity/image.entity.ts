@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Auction } from '../../auction/entity/auction.entity';
 
 @Entity('image')
 export class Image extends BaseEntity {
@@ -17,5 +18,9 @@ export class Image extends BaseEntity {
 
   @Column('longblob')
   data: Buffer;
+
+  @ManyToOne(type => Auction, auction => auction.images)
+  @JoinColumn({ name: 'auctionId', referencedColumnName: 'id' })
+  auction: Auction;
 
 }

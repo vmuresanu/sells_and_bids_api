@@ -1,4 +1,4 @@
-import { IsDecimal, IsEnum, IsISO8601, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsDecimal, IsEnum, IsISO8601, IsNumber, IsString } from 'class-validator';
 import { MileageTypeEnum } from './mileage-type.enum';
 import { VehicleStateEnum } from './vehicle-state.enum';
 
@@ -24,5 +24,8 @@ export class AuctionRequest {
 
   @IsString()
   description;
+
+  @IsString({ each: true })
+  imageIds: string[];
 
 }
