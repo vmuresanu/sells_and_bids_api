@@ -11,6 +11,7 @@ import { PermissionModule } from './modules/permission/permission.module';
 import { HasRolePermissionGuard } from './infrastructure/guards/has-role-permission.guard';
 import { AuctionModule } from './modules/auction/auction.module';
 import { ImageModule } from './modules/image/image.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ImageModule } from './modules/image/image.module';
     PermissionModule,
     AuctionModule,
     ImageModule,
+    ScheduleModule.forRoot()
   ],
   providers: [
     {
