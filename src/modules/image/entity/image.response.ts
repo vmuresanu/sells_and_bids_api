@@ -7,7 +7,7 @@ export class ImageResponse {
   id: string;
   name: string;
 
-  @Transform(value => dayjs(value).format('YYYY-MM-DD'))
+  @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD'))
   createdDate: string;
 
   @Expose({ groups: [GROUPS.GET_ONE] })

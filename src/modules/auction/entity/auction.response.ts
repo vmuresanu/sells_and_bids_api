@@ -5,10 +5,10 @@ import { ImageResponse } from '../../image/entity/image.response';
 export class AuctionResponse {
   id: string;
 
-  @Transform(value => dayjs(value).format('YYYY-MM-DD'))
+  @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD'))
   createdDate: string;
 
-  @Transform(user => user?.username)
+  @Transform(({ value }) => value.username)
   @Expose({ name: 'user' })
   username: string;
 
@@ -17,7 +17,7 @@ export class AuctionResponse {
   model: string;
 
   @Type(() => Date)
-  @Transform(value => dayjs(value).format('YYYY-MM'))
+  @Transform(({ value }) => dayjs(value).format('YYYY-MM'))
   year: Date;
 
   mileage: string;
