@@ -32,19 +32,3 @@ export function mapRolesAndPermissions(userResponse: UserResponse) {
 
   return object;
 }
-
-export function handleSorting(sortExpression: string) {
-  const orderOptions = {};
-  const criterion = sortExpression.split(',');
-  criterion.forEach(criteria => {
-    const parameter = criteria.charAt(0);
-    const key = criteria.substring(1);
-    // ' ' - because '+' is transformed into ' '
-    if (parameter !== ' ' && parameter !== '-') {
-      //throw new InvalidSortingParameterException();
-    }
-    const value = criteria.startsWith('-') ? -1 : 1;
-    orderOptions[key] = value;
-  });
-  return orderOptions;
-}
