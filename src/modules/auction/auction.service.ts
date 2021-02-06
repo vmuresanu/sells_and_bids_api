@@ -10,6 +10,9 @@ import { Request } from 'express';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entity/user.entity';
 import { ImageService } from '../image/image.service';
+import { PaginationOptions } from '../../infrastructure/pagination/pagination-options.interface';
+import { constructPagination, handleSorting } from '../../infrastructure/pagination/pagination-function';
+import { Paginate } from '../../infrastructure/pagination/paginator.interface';
 
 @Injectable()
 export class AuctionService {
@@ -19,8 +22,29 @@ export class AuctionService {
     private readonly auctionRepository: AuctionRepository,
     private readonly userService: UserService,
     private readonly imageService: ImageService,
-    @Inject(REQUEST) private readonly request: Request
+    @Inject(REQUEST) private readonly request: Request,
   ) {
+  }
+
+  async getAll(options: PaginationOptions): Promise<Paginate<AuctionResponse[]>> {
+    const sortExpression = options?.sort;
+    let orderOptions = {};
+
+    if (sortExpression) {
+      orderOptions = handleSorting(sortExpression);
+    }
+
+    return this.auctionRepository
+      .findAndCount({
+        take: options.limit,
+        skip: options.limit * options.page,
+        order: orderOptions,
+        relations: ['user', 'images'],
+      })
+      .then(([auction, totalItems]) => {
+        options.total = totalItems;
+        return constructPagination<AuctionResponse>(plainToClass(AuctionResponse, auction), options);
+      });
   }
 
   async create(auctionRequest: AuctionRequest): Promise<AuctionResponse> {

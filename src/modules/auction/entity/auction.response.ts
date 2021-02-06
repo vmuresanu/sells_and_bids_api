@@ -1,5 +1,6 @@
 import { Expose, Transform, Type } from 'class-transformer';
 import dayjs from 'dayjs';
+import { ImageResponse } from '../../image/entity/image.response';
 
 export class AuctionResponse {
   id: string;
@@ -7,7 +8,7 @@ export class AuctionResponse {
   @Transform(value => dayjs(value).format('YYYY-MM-DD'))
   createdDate: string;
 
-  @Transform(user => user.username)
+  @Transform(user => user?.username)
   @Expose({ name: 'user' })
   username: string;
 
@@ -26,4 +27,7 @@ export class AuctionResponse {
   vehicleState: string;
 
   description: string;
+
+  @Type(() => ImageResponse)
+  images: ImageResponse;
 }
