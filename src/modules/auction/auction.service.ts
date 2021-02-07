@@ -10,9 +10,9 @@ import { Request } from 'express';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entity/user.entity';
 import { ImageService } from '../image/image.service';
-import { PaginationOptions } from '../../infrastructure/pagination/pagination-options.interface';
 import { constructPagination, handleSorting } from '../../infrastructure/pagination/pagination-function';
 import { Paginate } from '../../infrastructure/pagination/paginator.interface';
+import { PaginationOptions } from '../../infrastructure/pagination/pagination-options.interface';
 
 @Injectable()
 export class AuctionService {
