@@ -5,6 +5,9 @@ import { VehicleStateEnum } from './vehicle-state.enum';
 export class AuctionRequest {
 
   @IsString()
+  title: string;
+
+  @IsString()
   make: string;
 
   @IsString()

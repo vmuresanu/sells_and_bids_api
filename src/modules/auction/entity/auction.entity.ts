@@ -24,6 +24,9 @@ export class Auction extends BaseEntity {
   createdDate: Date;
 
   @Column('varchar')
+  title: string;
+
+  @Column('varchar')
   make: string;
 
   @Column('varchar')

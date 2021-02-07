@@ -5,6 +5,8 @@ import { ImageResponse } from '../../image/entity/image.response';
 export class AuctionResponse {
   id: string;
 
+  title: string;
+
   @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD'))
   createdDate: string;
 
