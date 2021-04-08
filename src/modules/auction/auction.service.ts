@@ -12,7 +12,10 @@ import { User } from '../user/entity/user.entity';
 import { ImageService } from '../image/image.service';
 import { constructPagination, handleSorting } from '../../infrastructure/pagination/pagination-function';
 import { Paginate } from '../../infrastructure/pagination/paginator.interface';
-import { PaginationOptions } from '../../infrastructure/pagination/pagination-options.interface';
+import { GetAuctionParams } from './models/auction-query-params';
+import { constructFilters } from './utils/utility-functions';
+import { AuctionNotFoundException } from './exceptions/auction.exceptions';
+import { GROUPS } from '../../shared/constants/class-transformer';
 
 @Injectable()
 export class AuctionService {
@@ -26,9 +29,10 @@ export class AuctionService {
   ) {
   }
 
-  async getAll(options: PaginationOptions): Promise<Paginate<AuctionResponse[]>> {
-    const sortExpression = options?.sort;
+  async getAll(params: GetAuctionParams): Promise<Paginate<AuctionResponse[]>> {
+    const sortExpression = params?.sort;
     let orderOptions = {};
+    const whereCondition = constructFilters(params.filters);
 
     if (sortExpression) {
       orderOptions = handleSorting(sortExpression);
@@ -36,30 +40,61 @@ export class AuctionService {
 
     return this.auctionRepository
       .findAndCount({
-        take: options.limit,
-        skip: options.limit * options.page,
+        where: whereCondition,
+        take: params.limit,
+        skip: params.limit * params.page,
         order: orderOptions,
-        relations: ['user', 'images'],
+        relations: ['createdBy', 'updatedBy', 'images'],
       })
       .then(([auction, totalItems]) => {
-        options.total = totalItems;
-        return constructPagination<AuctionResponse>(plainToClass(AuctionResponse, auction), options);
+        params.total = totalItems;
+        return constructPagination<AuctionResponse>(plainToClass(AuctionResponse, auction), params);
       });
   }
 
   async create(auctionRequest: AuctionRequest): Promise<AuctionResponse> {
     const username = (this.request.user as User).username;
-    const user = await this.userService.getUserByUsername(username);
+    const userEntity = await this.userService.getUserByUsername(username);
     const images = await this.imageService.findByIds(auctionRequest.imageIds);
     const auction = this.auctionRepository.create(auctionRequest);
-    auction.user = user;
+    auction.createdBy = userEntity;
     auction.images = images;
-
 
     return this.auctionRepository
       .save(auction)
       .then((auction: Auction) => {
-        return plainToClass(AuctionResponse, auction);
+        return plainToClass(AuctionResponse, auction, { groups: [GROUPS.POST] });
       });
+  }
+
+  async update(auctionId: string, auctionRequest: AuctionRequest): Promise<AuctionResponse> {
+    let auction = await this.auctionRepository.findOne({
+      where: { id: auctionId },
+      relations: ['createdBy', 'updatedBy', 'images'],
+    });
+
+    if (!auction) {
+      throw new AuctionNotFoundException();
+    }
+    const username = (this.request.user as User).username;
+    const userEntity = await this.userService.getUserByUsername(username);
+    const images = await this.imageService.findByIds(auctionRequest.imageIds);
+    auction.updatedBy = userEntity;
+    auction.images = [ ...auction.images, ...images ];
+
+
+    return this.auctionRepository
+      .save({ ...auction, ...auctionRequest })
+      .then((auction: Auction) => {
+        return plainToClass(AuctionResponse, auction, { groups: [GROUPS.UPDATE] });
+      });
+  }
+
+  async delete(id: string): Promise<void> {
+    const image = await this.auctionRepository.findOne({ where: { id } });
+    if (!image) {
+      throw new AuctionNotFoundException();
+    }
+    await this.auctionRepository.delete({ id });
   }
 }

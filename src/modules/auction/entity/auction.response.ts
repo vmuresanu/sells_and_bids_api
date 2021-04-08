@@ -4,18 +4,19 @@ import { ImageResponse } from '../../image/entity/image.response';
 
 export class AuctionResponse {
   id: string;
-
   title: string;
-
-  @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD'))
   createdDate: string;
+  updatedDate: string
 
-  @Transform(({ value }) => value.username)
-  @Expose({ name: 'user' })
-  username: string;
+  @Transform(({ value }) => value?.username)
+  @Expose({ name: 'createdBy' })
+  createdBy: string;
+
+  @Transform(({ value }) => value?.username)
+  @Expose({ name: 'updatedBy' })
+  updatedBy: string;
 
   make: string;
-
   model: string;
 
   @Type(() => Date)
@@ -23,11 +24,8 @@ export class AuctionResponse {
   year: Date;
 
   mileage: string;
-
   mileageType: string;
-
   vehicleState: string;
-
   description: string;
 
   @Type(() => ImageResponse)

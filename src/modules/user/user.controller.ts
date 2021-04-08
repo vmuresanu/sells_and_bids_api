@@ -25,13 +25,13 @@ export class UserController {
   }
 
   @Post()
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe())
   create(@Body() userRequest: UserRequest) {
     return this.usersService.createUser(userRequest);
   }
 
   @Put(':id')
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe())
   update(@Param('id') id: string, @Body() userRequest: UserUpdateRequest) {
     return this.usersService.updateUser(id, userRequest);
   }
