@@ -6,11 +6,11 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Enum } from '../../../shared/decorators/enum.decorator';
-import { MileageTypeEnum } from './mileage-type.enum';
-import { VehicleStateEnum } from './vehicle-state.enum';
+import { MileageTypeEnum } from '../enums/mileage-type.enum';
+import { VehicleStateEnum } from '../enums/vehicle-state.enum';
 import { User } from '../../user/entity/user.entity';
 import { Image } from '../../image/entity/image.entity';
 
@@ -22,6 +22,9 @@ export class Auction extends BaseEntity {
 
   @CreateDateColumn()
   createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
 
   @Column('varchar')
   title: string;
@@ -48,7 +51,10 @@ export class Auction extends BaseEntity {
   description: string;
 
   @ManyToOne(type => User)
-  user: User;
+  createdBy: User;
+
+  @ManyToOne(type => User)
+  updatedBy: User;
 
   @OneToMany(type => Image, image => image.auction)
   images: Image[];

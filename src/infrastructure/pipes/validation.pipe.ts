@@ -5,17 +5,28 @@ import { plainToClass } from 'class-transformer';
 @Injectable()
 export class ValidationPipe implements PipeTransform {
 
+  constructor(public groupType?: string) {
+  }
+
   async transform(value: any, metadata: ArgumentMetadata) {
     if (value instanceof Object && this.isEmpty(value)) {
       throw new HttpException('Validation failed: No body submitted', HttpStatus.BAD_REQUEST);
     }
 
     const { metatype } = metadata;
+
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
     const object = plainToClass(metatype, value);
-    const errors = await validate(object, { whitelist: true });
+    let errors;
+
+    if (this.groupType) {
+      errors = await validate(object, { whitelist: true, groups: [this.groupType] })
+    } else {
+      errors = await validate(object, { whitelist: true })
+    }
+
     if (errors.length > 0) {
       throw new HttpException({text: 'Validation failed', count: errors.length, errors: this.formatErrors(errors)}, HttpStatus.BAD_REQUEST);
     }

@@ -1,35 +1,44 @@
 import { IsEnum, IsISO8601, IsNumber, IsOptional, IsString } from 'class-validator';
-import { MileageTypeEnum } from './mileage-type.enum';
-import { VehicleStateEnum } from './vehicle-state.enum';
+import { MileageTypeEnum } from '../enums/mileage-type.enum';
+import { VehicleStateEnum } from '../enums/vehicle-state.enum';
+import { GROUPS } from '../../../shared/constants/class-transformer';
 
 export class AuctionRequest {
 
-  @IsString()
+  @IsString({ groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   title: string;
 
-  @IsString()
+  @IsString({ groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   make: string;
 
-  @IsString()
+  @IsString({ groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   model: string;
 
-  @IsISO8601()
+  @IsISO8601({}, { groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   year: Date;
 
-  @IsNumber()
+  @IsNumber({}, { groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   mileage: number;
 
-  @IsEnum(MileageTypeEnum)
+  @IsEnum(MileageTypeEnum, { groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   mileageType: MileageTypeEnum;
 
-  @IsEnum(VehicleStateEnum)
+  @IsEnum(VehicleStateEnum, { groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   vehicleState: VehicleStateEnum;
 
-  @IsString()
+  @IsString({ groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.UPDATE] })
   description;
 
-  @IsString({ each: true })
-  @IsOptional()
+  @IsString({ each: true, groups: [GROUPS.POST, GROUPS.UPDATE] })
+  @IsOptional({ groups: [GROUPS.POST, GROUPS.UPDATE] })
   imageIds: string[];
 
 }

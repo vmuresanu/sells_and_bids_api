@@ -8,7 +8,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe())
   async login(@Body() userRequest: UserRequest) {
     return this.authService.login(userRequest);
   }

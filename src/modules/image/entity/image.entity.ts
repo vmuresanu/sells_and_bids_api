@@ -19,7 +19,7 @@ export class Image extends BaseEntity {
   @Column('longblob')
   data: Buffer;
 
-  @ManyToOne(type => Auction, auction => auction.images)
+  @ManyToOne(type => Auction, auction => auction.images, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'auctionId', referencedColumnName: 'id' })
   auction: Auction;
 
