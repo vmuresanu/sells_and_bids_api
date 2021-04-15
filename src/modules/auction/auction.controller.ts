@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UsePipes } from '@nestjs/common';
 import { AuctionService } from './auction.service';
 import { ValidationPipe } from '../../infrastructure/pipes/validation.pipe';
 import { AuctionRequest } from './entity/auction.request';
