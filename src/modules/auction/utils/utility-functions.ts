@@ -17,7 +17,7 @@ export function makeModelTransformer(makeModels: string, filterObject) {
   }
   const a = makeModels.split(',');
   a.forEach(e => {
-    let arr = e.split(' ');
+    let arr = e.split('+');
     if (arr[1]) {
       return resultArray.push({ make: arr[0], model: arr[1], ...filterObject });
     }
