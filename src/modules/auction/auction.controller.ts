@@ -8,6 +8,7 @@ import { ROLES } from '../../shared/constants/roles-and-permissions';
 import { AuctionResponse } from './entity/auction.response';
 import { Paginate } from '../../infrastructure/pagination/paginator.interface';
 import { GROUPS } from '../../shared/constants/class-transformer';
+import { VehicleStateEnum } from './enums/vehicle-state.enum';
 
 @Controller('auction')
 export class AuctionController {
@@ -20,7 +21,8 @@ export class AuctionController {
     @Query('make-models') makeModels?: string,
     @Query('mileage') mileage?: number,
     @Query('fromYear') fromYear?: string,
-    @Query('tillYear') tillYear?: string,
+    @Query('toYear') toYear?: string,
+    @Query('vehicleState') vehicleState?: VehicleStateEnum,
   ): Promise<Paginate<AuctionResponse[]>> {
     return await this.auctionService.getAll({
       page,
@@ -29,7 +31,7 @@ export class AuctionController {
       filters: {
         makeModels,
         simpleFilters: {
-          mileage, fromYear, tillYear,
+          mileage, fromYear, toYear, vehicleState,
         },
       },
     });

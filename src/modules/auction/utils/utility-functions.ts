@@ -1,9 +1,9 @@
 import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { GetAuctionParams } from '../models/auction-query-params';
 
 export function constructFilters(filters) {
   let filterObject = {
-    ...startEndYearTransformer(filters.simpleFilters.fromRegistration, filters.simpleFilters.tillRegistration),
+    ...vehicleStateTransformer(filters.simpleFilters.vehicleState),
+    ...startEndYearTransformer(filters.simpleFilters.fromYear, filters.simpleFilters.toYear),
     ...mileageTransformer(filters.simpleFilters.mileage),
   };
 
@@ -13,7 +13,7 @@ export function constructFilters(filters) {
 export function makeModelTransformer(makeModels: string, filterObject) {
   let resultArray = [];
   if (!makeModels) {
-    return [];
+    return filterObject;
   }
   const a = makeModels.split(',');
   a.forEach(e => {
@@ -44,4 +44,11 @@ export function mileageTransformer(mileage) {
     return;
   }
   return { mileage: LessThanOrEqual(mileage) }
+}
+
+export function vehicleStateTransformer(vehicleState) {
+  if (!vehicleState) {
+    return;
+  }
+  return { vehicleState }
 }
