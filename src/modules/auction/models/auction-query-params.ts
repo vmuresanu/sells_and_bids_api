@@ -1,4 +1,5 @@
 import { PaginationOptions } from '../../../infrastructure/pagination/pagination-options.interface';
+import { VehicleStateEnum } from '../enums/vehicle-state.enum';
 
 export interface GetAuctionParams extends PaginationOptions {
   filters: {
@@ -6,7 +7,8 @@ export interface GetAuctionParams extends PaginationOptions {
     simpleFilters: {
       mileage: number;
       fromYear: string;
-      tillYear: string;
+      toYear: string;
+      vehicleState: VehicleStateEnum;
     }
   }
 }
