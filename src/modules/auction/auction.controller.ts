@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, UseGuards, UsePipes } from '@nestjs/common';
 import { AuctionService } from './auction.service';
 import { ValidationPipe } from '../../infrastructure/pipes/validation.pipe';
 import { AuctionRequest } from './entity/auction.request';
@@ -9,9 +9,26 @@ import { AuctionResponse } from './entity/auction.response';
 import { Paginate } from '../../infrastructure/pagination/paginator.interface';
 import { GROUPS } from '../../shared/constants/class-transformer';
 import { VehicleStateEnum } from './enums/vehicle-state.enum';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+export interface MessageEvent {
+  data: string | object;
+  id?: string;
+  type?: string;
+  retry?: number;
+}
 
 @Controller('auction')
 export class AuctionController {
+
+  constructor(private auctionService: AuctionService) {
+  }
+
+  @Sse('sse')
+  sse(): Observable<MessageEvent> {
+    return this.auctionService.messageSub.pipe(map((val) => ({ data: val})));
+  }
 
   @Get()
   async getAllAuctions(
@@ -24,6 +41,7 @@ export class AuctionController {
     @Query('toYear') toYear?: string,
     @Query('vehicleState') vehicleState?: VehicleStateEnum,
   ): Promise<Paginate<AuctionResponse[]>> {
+    this.auctionService.messageSub.next('Poop')
     return await this.auctionService.getAll({
       page,
       limit,
@@ -35,9 +53,6 @@ export class AuctionController {
         },
       },
     });
-  }
-
-  constructor(private auctionService: AuctionService) {
   }
 
   @Post()
