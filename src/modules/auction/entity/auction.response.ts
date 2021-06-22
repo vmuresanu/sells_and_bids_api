@@ -1,9 +1,13 @@
-import { Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import dayjs from 'dayjs';
 import { ImageResponse } from '../../image/entity/image.response';
+import { AuctionTypeEnum } from '../enums/auction-type.enum';
+import { MileageTypeEnum } from '../enums/mileage-type.enum';
+import { VehicleStateEnum } from '../enums/vehicle-state.enum';
 
 export class AuctionResponse {
   id: string;
+  auctionType: AuctionTypeEnum;
   title: string;
   createdDate: string;
   updatedDate: string
@@ -24,10 +28,16 @@ export class AuctionResponse {
   year: Date;
 
   mileage: string;
-  mileageType: string;
-  vehicleState: string;
+  mileageType: MileageTypeEnum;
+  vehicleState: VehicleStateEnum;
   description: string;
+  price: number;
+  minBidPrice: number;
+  endOfBidDate: Date;
 
   @Type(() => ImageResponse)
   images: ImageResponse;
+
+  @Exclude()
+  imageIds: string[];
 }

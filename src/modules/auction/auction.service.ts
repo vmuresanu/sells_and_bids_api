@@ -16,9 +16,12 @@ import { GetAuctionParams } from './models/auction-query-params';
 import { constructFilters } from './utils/utility-functions';
 import { AuctionNotFoundException } from './exceptions/auction.exceptions';
 import { GROUPS } from '../../shared/constants/class-transformer';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class AuctionService {
+
+  messageSub = new BehaviorSubject('default');
 
   constructor(
     @InjectRepository(Auction)
@@ -80,7 +83,7 @@ export class AuctionService {
     const userEntity = await this.userService.getUserByUsername(username);
     const images = await this.imageService.findByIds(auctionRequest.imageIds);
     auction.updatedBy = userEntity;
-    auction.images = [ ...auction.images, ...images ];
+    auction.images = [...images];
 
 
     return this.auctionRepository
