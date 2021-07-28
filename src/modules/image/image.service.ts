@@ -11,46 +11,45 @@ import { In } from 'typeorm';
 
 @Injectable()
 export class ImageService {
+  constructor(private imageRepository: ImageRepository) {}
 
-  constructor(
-    private imageRepository: ImageRepository,
-  ) {
+  async updateIndex(imageId, newIndex) {
+    return this.imageRepository.update(imageId, { orderIndex: newIndex });
   }
 
   async create(files: Express.Multer.File[], imageRequest: ImageRequest): Promise<ImageResponse[]> {
     if (!files.length) {
       throw new FilesNotSelectedException();
     }
+
     let newImages: ImageRequest[] = [];
-    files.forEach(file => {
-      const newImage = this.imageRepository.create(imageRequest);
+    files.forEach((file) => {
+      const newImage: Image = this.imageRepository.create(imageRequest);
       newImage.data = file.buffer;
       newImage.name = file.originalname;
       newImage.contentType = file.mimetype;
       newImages.push(newImage);
     });
 
-    return this.imageRepository
-      .save(newImages)
-      .then((images: Image[]) => {
-        return plainToClass(ImageResponse, images);
-      });
+    return this.imageRepository.save(newImages).then((images: Image[]) => {
+      return plainToClass(ImageResponse, images);
+    });
   }
 
   async findAll(): Promise<ImageResponse[]> {
-    return this.imageRepository
-      .find()
-      .then((images: Image[]) => {
-        return plainToClass(ImageResponse, images)
-      });
+    return this.imageRepository.find().then((images: Image[]) => {
+      return plainToClass(ImageResponse, images);
+    });
+  }
+
+  async findEntitiesByAuctionId(auctionId: string): Promise<Image[]> {
+    return this.imageRepository.find({ where: { auction: { id: auctionId } } });
   }
 
   async findById(id: string): Promise<ImageResponse> {
-    return this.imageRepository
-      .findOne({ where: { id } })
-      .then((image: Image) => {
-        return plainToClass(ImageResponse, image, { groups: [GROUPS.GET_ONE] });
-      });
+    return this.imageRepository.findOne({ where: { id } }).then((image: Image) => {
+      return plainToClass(ImageResponse, image, { groups: [GROUPS.GET_ONE] });
+    });
   }
 
   async findOrphans(): Promise<Image[]> {
@@ -61,7 +60,8 @@ export class ImageService {
     if (!ids?.length) {
       return [];
     }
-    const images = await this.imageRepository.find({ where: { id: In(ids) } });
+    const images = await this.imageRepository.find({ where: { id: In(ids) }, order: { orderIndex: 'ASC' } });
+
     if (!images.length) {
       throw new ImagesNotFoundException();
     }
@@ -83,5 +83,4 @@ export class ImageService {
     }
     await this.imageRepository.remove(images);
   }
-
 }

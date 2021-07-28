@@ -3,7 +3,6 @@ import { Auction } from '../../auction/entity/auction.entity';
 
 @Entity('image')
 export class Image extends BaseEntity {
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -19,8 +18,10 @@ export class Image extends BaseEntity {
   @Column('longblob')
   data: Buffer;
 
-  @ManyToOne(type => Auction, auction => auction.images, {onDelete: 'CASCADE'})
+  @ManyToOne((type) => Auction, (auction) => auction.images, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'auctionId', referencedColumnName: 'id' })
   auction: Auction;
 
+  @Column({ type: 'decimal', nullable: true })
+  orderIndex: number;
 }

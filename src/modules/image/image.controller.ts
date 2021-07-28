@@ -18,15 +18,13 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Controller('image')
 export class ImageController {
-
-  constructor(private imageService: ImageService) {
-  }
+  constructor(private imageService: ImageService) {}
 
   @Cron(CronExpression.EVERY_2ND_HOUR, { name: 'deleteOrphanImages' })
   async handleCron() {
     Logger.log('Starting to delete orphan images', 'Cron');
     const images = await this.imageService.findOrphans();
-    const imageIds = images.map(i => i.id);
+    const imageIds = images.map((i) => i.id);
     if (!imageIds.length) {
       return;
     }
@@ -42,7 +40,6 @@ export class ImageController {
 
   @Get()
   async findAllImages() {
-
     return await this.imageService.findAll();
   }
 
@@ -55,8 +52,6 @@ export class ImageController {
 
   @Delete(':id')
   async deleteImageById(@Param('id') id: string) {
-
     return this.imageService.deleteById(id);
   }
-
 }

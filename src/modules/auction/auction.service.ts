@@ -20,7 +20,6 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class AuctionService {
-
   messageSub = new BehaviorSubject('default');
 
   constructor(
@@ -40,34 +39,44 @@ export class AuctionService {
     if (sortExpression) {
       orderOptions = handleSorting(sortExpression);
     }
-
-    return this.auctionRepository
-      .findAndCount({
-        where: whereCondition,
-        take: params.limit,
-        skip: params.limit * params.page,
-        order: orderOptions,
-        relations: ['createdBy', 'updatedBy', 'images'],
-      })
+    return await this.auctionRepository.createQueryBuilder('auction')
+      .leftJoinAndSelect('auction.images', 'images')
+      .leftJoinAndSelect('auction.createdBy', 'createdBy')
+      .leftJoinAndSelect('auction.updatedBy', 'updatedBy')
+      .where(whereCondition)
+      .orderBy(orderOptions)
+      .addOrderBy('images.orderIndex')
+      .getManyAndCount()
       .then(([auction, totalItems]) => {
         params.total = totalItems;
         return constructPagination<AuctionResponse>(plainToClass(AuctionResponse, auction), params);
       });
   }
 
+  async findEntityById(id: string): Promise<Auction> {
+    return this.auctionRepository.findOne({ where: { id } });
+  }
+
   async create(auctionRequest: AuctionRequest): Promise<AuctionResponse> {
     const username = (this.request.user as User).username;
     const userEntity = await this.userService.getUserByUsername(username);
-    const images = await this.imageService.findByIds(auctionRequest.imageIds);
+    let images = await this.imageService.findByIds(auctionRequest.imageIds);
+
+    await Promise.all(images.map(async (image, index) => {
+      if (image.id !== auctionRequest.imageIds[index]) {
+        const foundIndex = auctionRequest.imageIds.findIndex(id => id === image.id);
+        image.orderIndex = foundIndex;
+        return await this.imageService.updateIndex(image.id, foundIndex);
+      }
+    }))
+    images = await this.imageService.findByIds(auctionRequest.imageIds);
     const auction = this.auctionRepository.create(auctionRequest);
     auction.createdBy = userEntity;
     auction.images = images;
 
-    return this.auctionRepository
-      .save(auction)
-      .then((auction: Auction) => {
-        return plainToClass(AuctionResponse, auction, { groups: [GROUPS.POST] });
-      });
+    return this.auctionRepository.save(auction).then((auction: Auction) => {
+      return plainToClass(AuctionResponse, auction, { groups: [GROUPS.POST] });
+    });
   }
 
   async update(auctionId: string, auctionRequest: AuctionRequest): Promise<AuctionResponse> {
@@ -81,16 +90,22 @@ export class AuctionService {
     }
     const username = (this.request.user as User).username;
     const userEntity = await this.userService.getUserByUsername(username);
-    const images = await this.imageService.findByIds(auctionRequest.imageIds);
+    let images = await this.imageService.findByIds(auctionRequest.imageIds);
+
+    await Promise.all(images.map(async (image, index) => {
+      if (image.id !== auctionRequest.imageIds[index]) {
+        const foundIndex = auctionRequest.imageIds.findIndex(id => id === image.id);
+        image.orderIndex = foundIndex;
+        return await this.imageService.updateIndex(image.id, foundIndex);
+      }
+    }))
+    images = await this.imageService.findByIds(auctionRequest.imageIds);
     auction.updatedBy = userEntity;
     auction.images = [...images];
 
-
-    return this.auctionRepository
-      .save({ ...auction, ...auctionRequest })
-      .then((auction: Auction) => {
-        return plainToClass(AuctionResponse, auction, { groups: [GROUPS.UPDATE] });
-      });
+    return this.auctionRepository.save({ ...auction, ...auctionRequest }).then((auction: Auction) => {
+      return plainToClass(AuctionResponse, auction, { groups: [GROUPS.UPDATE] });
+    });
   }
 
   async delete(id: string): Promise<void> {
